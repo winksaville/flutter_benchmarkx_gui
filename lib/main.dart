@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'simple_line_chart.dart';
 
 void main() {
   runApp(MyApp());
@@ -103,6 +104,12 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
+            ),
+            const SizedBox(height: 30),
+            Container(
+              width: 500,
+              height: 250,
+              child: SimpleLineChart.withSampleData(),
             ),
           ],
         ),

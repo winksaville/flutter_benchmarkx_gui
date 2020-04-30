@@ -1,3 +1,4 @@
+import 'package:benchmark_framework_x/benchmark_framework_x.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
@@ -16,6 +17,18 @@ class SimpleLineChart extends StatelessWidget {
 
     return SimpleLineChart(
       createBenchmarkChartData(title, mockData),
+      // Disable animations for image tests.
+      animate: false,
+    );
+  }
+
+  /// Creates a [LineChart] with sample data and no transition.
+  factory SimpleLineChart.runBenchmark(String title) {
+    final BenchmarkBaseX bm = BenchmarkBaseX(title);
+    final List<double> samples =
+        bm.measureSamples(sampleCount: 100, minExerciseInMillis: 200);
+    return SimpleLineChart(
+      createBenchmarkChartData(title, samples),
       // Disable animations for image tests.
       animate: false,
     );

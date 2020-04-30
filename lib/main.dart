@@ -109,7 +109,8 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               width: 500,
               height: 250,
-              child: SimpleLineChart.withSampleData('Data'),
+              //child: SimpleLineChart.withSampleData('Data'),
+              child: SimpleLineChart.runBenchmark('Data'),
             ),
           ],
         ),

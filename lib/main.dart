@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Benchmark GUI'),
     );
   }
 }
@@ -66,6 +66,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    // Change to Colors.black to see the border
+    BoxDecoration visualizeBorder() {
+      const Color c = Colors.white; // black;
+      return BoxDecoration(
+          border: Border.all(color: c, width: 3),
+      );
+    }
+
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -97,20 +106,28 @@ class _MyHomePageState extends State<MyHomePage> {
           // axis because Columns are vertical (the cross axis would be
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
+
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-            const SizedBox(height: 30),
             Container(
-              width: 500,
-              height: 250,
-              //child: SimpleLineChart.withSampleData('Data'),
-              child: SimpleLineChart.runBenchmark('Data'),
+              decoration: visualizeBorder(),
+              child: const Text(
+                'You have pushed the button this many times:',
+              ),
+            ),
+            Container(
+              decoration: visualizeBorder(),
+              child: Text(
+                '$_counter',
+                style: Theme.of(context).textTheme.headline4,
+              ),
+            ),
+            Expanded( // Take all remaining real-estate
+              child: Container(
+                margin: const EdgeInsets.all(10),
+                decoration: visualizeBorder(),
+                //child: SimpleLineChart.withSampleData('Data'),
+                child: SimpleLineChart.runBenchmark('Data'),
+              ), 
             ),
           ],
         ),

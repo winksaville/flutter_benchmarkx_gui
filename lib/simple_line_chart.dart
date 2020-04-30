@@ -48,11 +48,20 @@ class SimpleLineChart extends StatelessWidget {
       primaryMeasureAxis: charts.NumericAxisSpec(
         tickFormatterSpec: customTickFormatter,
 
-        tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-          dataIsInWholeNumbers: false,
-          desiredTickCount: 3,
-          zeroBound: false,
-        ),
+        tickProviderSpec: const charts
+            .StaticNumericTickProviderSpec(<charts.TickSpec<double>>[
+          charts.TickSpec<double>(2.0e-10),
+          charts.TickSpec<double>(2.5e-10),
+          charts.TickSpec<double>(3.0e-10),
+          charts.TickSpec<double>(3.5e-10),
+          charts.TickSpec<double>(4.0e-10),
+        ]),
+
+        //tickProviderSpec: const charts.BasicNumericTickProviderSpec(
+        //  dataIsInWholeNumbers: false,
+        //  desiredTickCount: 3,
+        //  zeroBound: false,
+        //),
       ),
     );
   }

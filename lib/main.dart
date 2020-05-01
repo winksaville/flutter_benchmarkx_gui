@@ -6,11 +6,13 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  static const String name = 'Benchmark GUI';
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: name,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -27,7 +29,7 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const MyHomePage(title: 'Benchmark GUI'),
+      home: const MyHomePage(title: name),
     );
   }
 }

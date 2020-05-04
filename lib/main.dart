@@ -3,6 +3,7 @@ import 'dart:isolate';
 
 import 'package:benchmark_framework_x/benchmark_framework_x.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'simple_line_chart.dart';
 
 // Main entry point of the application
@@ -27,38 +28,51 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const MyHomePage(title: name),
+      home: const BenchmarkForm(title: name),
     );
   }
 }
 
-// The home page of the applicaiton.
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key key, this.title}) : super(key: key);
+class BenchmarkForm extends StatefulWidget {
+  const BenchmarkForm({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  BenchmarkFormState createState() => BenchmarkFormState();
 }
 
-// The private State managment for HomePage
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class BenchmarkParams {
+  BenchmarkParams({this.sendPort, this.sampleCount});
+
+  SendPort sendPort;
+  final int sampleCount;
+}
+
+void runBm(BenchmarkParams params) {
+  const BenchmarkBaseX bm = BenchmarkBaseX('Data');
+  final List<double> samples = bm.measureSamples(
+      sampleCount: params.sampleCount, minExerciseInMillis: 2000);
+  params.sendPort.send(samples);
+}
+
+class BenchmarkFormState extends State<BenchmarkForm> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<double> _samples = <double>[];
 
-  static void runBenchmark(SendPort sendPort) {
-    const BenchmarkBaseX bm = BenchmarkBaseX('Data');
-    final List<double> samples =
-        bm.measureSamples(sampleCount: 200, minExerciseInMillis: 2000);
-    sendPort.send(samples);
-  }
+  // BenchmarkForm fields
+  static const String _sampleCountLabel = 'Sample count';
+  int _sampleCount;
 
-  Future<void> _incrementCounter() async {
+  Future<void> _runBm() async {
+    print('_runBm:+ $_sampleCount');
     // Run the benchmark
     final ReceivePort receivePort = ReceivePort();
 
-    final Isolate isolate = await Isolate.spawn(runBenchmark, receivePort.sendPort);
+    final Isolate isolate = await Isolate.spawn(
+        runBm,
+        BenchmarkParams(
+            sendPort: receivePort.sendPort, sampleCount: _sampleCount));
 
     List<double> samples;
     await receivePort.first.then((dynamic value) {
@@ -70,20 +84,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // Use setState to update state variables so build gets called.
     setState(() {
-      _counter++;
+      print('_runBm.setState:+ $_sampleCount');
       _samples = samples;
     });
   }
 
-  /// build is rerun everytime setState is called.
   @override
   Widget build(BuildContext context) {
-
     // Change to Colors.black to see the border
     BoxDecoration visualizeBorder() {
-      const Color c = Colors.white; // black;
+      const Color c = Colors.black; //.white; // black;
       return BoxDecoration(
-          border: Border.all(color: c, width: 3),
+        border: Border.all(color: c, width: 3),
       );
     }
 
@@ -102,33 +114,56 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
 
           children: <Widget>[
-            Container(
-              decoration: visualizeBorder(),
-              child: const Text(
-                'You have pushed the button this many times:',
-              ),
-            ),
-            Container(
-              decoration: visualizeBorder(),
-              child: Text(
-                '$_counter',
-                style: Theme.of(context).textTheme.headline4,
-              ),
-            ),
-            Expanded( // Take all remaining real-estate
+            Expanded(
+              // Take all remaining real-estate
               child: Container(
                 margin: const EdgeInsets.all(10),
                 decoration: visualizeBorder(),
                 child: SimpleLineChart('Data', _samples),
               ),
             ),
+            Container(
+              decoration: visualizeBorder(),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      decoration: visualizeBorder(),
+                      child: TextFormField(
+                        decoration: const InputDecoration(
+                          labelText: _sampleCountLabel,
+                        ),
+                        onChanged: (String value) {
+                          print('$_sampleCountLabel.onChanged: "$value"');
+                          if (value.isNotEmpty) {
+                            _sampleCount = int.parse(value);
+                          }
+                        },
+                        validator: (String value) {
+                          if (value.isEmpty || (int.parse(value).toInt() < 0)) {
+                            print(
+                                '$_sampleCountLabel.validator: "$value" is not correct must be >= 1');
+                            return '$_sampleCountLabel must be >= 1';
+                          }
+                          print('$_sampleCountLabel.validator: "$value" is GOOD');
+                          _sampleCount = int.parse(value).toInt();
+                          return null; // All is well
+                        },
+                      ),
+                    ),
+                    RaisedButton(onPressed: () {
+                      if (_formKey.currentState.validate()) {
+                        print('Call benchmark');
+                        _runBm();
+                      }
+                    }),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }

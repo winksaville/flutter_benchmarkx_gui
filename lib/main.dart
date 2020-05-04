@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:isolate';
+
+import 'package:benchmark_framework_x/benchmark_framework_x.dart';
 import 'package:flutter/material.dart';
 import 'simple_line_chart.dart';
 
@@ -54,8 +58,29 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  List<double> _samples = <double>[];
 
-  void _incrementCounter() {
+  static void runBenchmark(SendPort sendPort) {
+    BenchmarkBaseX bm = const BenchmarkBaseX('Data');
+    final List<double> samples =
+        bm.measureSamples(sampleCount: 100, minExerciseInMillis: 200);
+    sendPort.send(samples);
+  }
+
+  Future<void> _incrementCounter() async {
+    // Run the benchmark
+    final ReceivePort receivePort = ReceivePort();
+
+    final Isolate isolate = await Isolate.spawn(runBenchmark, receivePort.sendPort);
+
+    List<double> samples;
+    await receivePort.first.then((dynamic value) {
+      if (value is List<double>) {
+        samples = value;
+      }
+    });
+    isolate.kill();
+
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
@@ -63,6 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _counter++;
+      _samples = samples;
     });
   }
 
@@ -127,9 +153,8 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Container(
                 margin: const EdgeInsets.all(10),
                 decoration: visualizeBorder(),
-                //child: SimpleLineChart.withSampleData('Data'),
-                child: SimpleLineChart.runBenchmark('Data'),
-              ), 
+                child: SimpleLineChart('Data', _samples),
+              ),
             ),
           ],
         ),

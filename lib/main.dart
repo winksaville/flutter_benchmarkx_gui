@@ -61,9 +61,9 @@ class _MyHomePageState extends State<MyHomePage> {
   List<double> _samples = <double>[];
 
   static void runBenchmark(SendPort sendPort) {
-    BenchmarkBaseX bm = const BenchmarkBaseX('Data');
+    const BenchmarkBaseX bm = BenchmarkBaseX('Data');
     final List<double> samples =
-        bm.measureSamples(sampleCount: 100, minExerciseInMillis: 200);
+        bm.measureSamples(sampleCount: 200, minExerciseInMillis: 2000);
     sendPort.send(samples);
   }
 

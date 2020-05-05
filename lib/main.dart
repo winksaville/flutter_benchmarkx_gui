@@ -43,16 +43,18 @@ class BenchmarkForm extends StatefulWidget {
 }
 
 class BenchmarkParams {
-  BenchmarkParams({this.sendPort, this.sampleCount});
+  BenchmarkParams({this.sendPort, this.sampleCount, this.minExerciseInMillis});
 
   SendPort sendPort;
   final int sampleCount;
+  final int minExerciseInMillis;
 }
 
 void runBm(BenchmarkParams params) {
   const BenchmarkBaseX bm = BenchmarkBaseX('Data');
   final List<double> samples = bm.measureSamples(
-      sampleCount: params.sampleCount, minExerciseInMillis: 2000);
+      sampleCount: params.sampleCount,
+      minExerciseInMillis: params.minExerciseInMillis);
   params.sendPort.send(samples);
 }
 
@@ -98,6 +100,10 @@ class SampleCountField extends BaseIntField {
   SampleCountField(String label) : super(label);
 }
 
+class MinExerciseInMillisField extends BaseIntField {
+  MinExerciseInMillisField(String label) : super(label);
+}
+
 class BenchmarkFormState extends State<BenchmarkForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<double> _samples = <double>[];
@@ -107,20 +113,25 @@ class BenchmarkFormState extends State<BenchmarkForm> {
     super.initState();
 
     sampleCountField.addListener();
+    minExerciseInMillisField.addListener();
   }
 
   @override
   void dispose() {
     print('BenchmarkFormState.dispose: sampleCountController.dispose()');
     sampleCountField.dispose();
+    minExerciseInMillisField.dispose();
     super.dispose();
   }
 
   // BenchmarkForm fields
   SampleCountField sampleCountField = SampleCountField('Sample count');
+  MinExerciseInMillisField minExerciseInMillisField =
+      MinExerciseInMillisField('minExercise ms');
 
   Future<void> _runBm() async {
-    print('_runBm:+ ${sampleCountField.value}');
+    print(
+        '_runBm:+ ${sampleCountField.value} ${minExerciseInMillisField.value}');
     // Run the benchmark
     final ReceivePort receivePort = ReceivePort();
 
@@ -128,7 +139,8 @@ class BenchmarkFormState extends State<BenchmarkForm> {
         runBm,
         BenchmarkParams(
             sendPort: receivePort.sendPort,
-            sampleCount: sampleCountField.value));
+            sampleCount: sampleCountField.value,
+            minExerciseInMillis: minExerciseInMillisField.value));
 
     List<double> samples;
     await receivePort.first.then((dynamic value) {
@@ -140,7 +152,8 @@ class BenchmarkFormState extends State<BenchmarkForm> {
 
     // Use setState to update state variables so build gets called.
     setState(() {
-      print('BenchmarkFormState._runBm.setState:+ ${sampleCountField.value}');
+      print(
+          '_runBm.setState:+ ${sampleCountField.value} ${minExerciseInMillisField.value}');
       _samples = samples;
     });
   }
@@ -186,14 +199,27 @@ class BenchmarkFormState extends State<BenchmarkForm> {
                 key: _formKey,
                 child: Column(
                   children: <Widget>[
-                    Container(
-                      decoration: visualizeBorder(),
-                      child: sampleCountField.textFormField,
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: sampleCountField.textFormField,
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: minExerciseInMillisField.textFormField,
+                          ),
+                        ),
+                      ],
                     ),
                     RaisedButton(onPressed: () {
                       if (_formKey.currentState.validate()) {
                         print('BenchmarkFormState.RaisedButton.onPressed: '
-                            'sampleCountController.text=${sampleCountField.value}');
+                            'sampleCountController.text=${sampleCountField.value} '
+                            'minExerciseInMillis.text=${minExerciseInMillisField.value}');
                         print('BenchmarkFormState.RaisedButton.onPressed: '
                             'call _runBm');
                         _runBm();

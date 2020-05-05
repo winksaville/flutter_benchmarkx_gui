@@ -128,7 +128,7 @@ class BenchmarkFormState extends State<BenchmarkForm> {
   // BenchmarkForm fields
   SampleCountField sampleCountField = SampleCountField('Sample count', 100);
   MinExerciseInMillisField minExerciseInMillisField =
-      MinExerciseInMillisField('minExercise ms', 5000);
+      MinExerciseInMillisField('minExercise ms', 1000);
 
   Future<void> _runBm() async {
     print(
@@ -214,18 +214,24 @@ class BenchmarkFormState extends State<BenchmarkForm> {
                             child: minExerciseInMillisField.textFormField,
                           ),
                         ),
+                        Container(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: RaisedButton(
+                              onPressed: () {
+                                if (_formKey.currentState.validate()) {
+                                  print('BenchmarkFormState.RaisedButton.onPressed: '
+                                      'sampleCountController.text=${sampleCountField.value} '
+                                      'minExerciseInMillis.text=${minExerciseInMillisField.value}');
+                                  _runBm();
+                                }
+                              },
+                              child: const Text('Run'),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
-                    RaisedButton(onPressed: () {
-                      if (_formKey.currentState.validate()) {
-                        print('BenchmarkFormState.RaisedButton.onPressed: '
-                            'sampleCountController.text=${sampleCountField.value} '
-                            'minExerciseInMillis.text=${minExerciseInMillisField.value}');
-                        print('BenchmarkFormState.RaisedButton.onPressed: '
-                            'call _runBm');
-                        _runBm();
-                      }
-                    }),
                   ],
                 ),
               ),

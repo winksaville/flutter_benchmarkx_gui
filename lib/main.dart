@@ -50,7 +50,7 @@ class BenchmarkParams {
   final int minExerciseInMillis;
 }
 
-void runBm(BenchmarkParams params) {
+void runBenchmark(BenchmarkParams params) {
   const BenchmarkBaseX bm = BenchmarkBaseX('Data');
   final List<double> samples = bm.measureSamples(
       sampleCount: params.sampleCount,
@@ -130,14 +130,14 @@ class BenchmarkFormState extends State<BenchmarkForm> {
   MinExerciseInMillisField minExerciseInMillisField =
       MinExerciseInMillisField('minExercise ms', 1000);
 
-  Future<void> _runBm() async {
+  Future<void> runBm() async {
     print(
-        '_runBm:+ ${sampleCountField.value} ${minExerciseInMillisField.value}');
+        'runBm:+ ${sampleCountField.value} ${minExerciseInMillisField.value}');
     // Run the benchmark
     final ReceivePort receivePort = ReceivePort();
 
     final Isolate isolate = await Isolate.spawn(
-        runBm,
+        runBenchmark,
         BenchmarkParams(
             sendPort: receivePort.sendPort,
             sampleCount: sampleCountField.value,
@@ -154,7 +154,7 @@ class BenchmarkFormState extends State<BenchmarkForm> {
     // Use setState to update state variables so build gets called.
     setState(() {
       print(
-          '_runBm.setState:+ ${sampleCountField.value} ${minExerciseInMillisField.value}');
+          'runBm.setState:+ ${sampleCountField.value} ${minExerciseInMillisField.value}');
       _samples = samples;
     });
   }
@@ -223,7 +223,7 @@ class BenchmarkFormState extends State<BenchmarkForm> {
                                   print('BenchmarkFormState.RaisedButton.onPressed: '
                                       'sampleCountController.text=${sampleCountField.value} '
                                       'minExerciseInMillis.text=${minExerciseInMillisField.value}');
-                                  _runBm();
+                                  runBm();
                                 }
                               },
                               child: const Text('Run'),

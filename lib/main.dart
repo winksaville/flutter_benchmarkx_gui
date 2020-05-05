@@ -56,8 +56,8 @@ void runBm(BenchmarkParams params) {
   params.sendPort.send(samples);
 }
 
-class SampleCountField {
-  SampleCountField(this.label);
+class BaseIntField {
+  BaseIntField(this.label);
 
   void dispose() {
     controller.dispose();
@@ -71,25 +71,31 @@ class SampleCountField {
         decoration: InputDecoration(
           labelText: label,
         ),
-        validator: (String valueStr) {
-          if (valueStr.isEmpty || (int.parse(valueStr).toInt() < 0)) {
-            print('$label.validator: "$valueStr" is not correct must be >= 1');
-            return '$label must be >= 1';
-          }
-
-          // The param valueStr is good, set value.
-          print('$label.validator: "$valueStr" is GOOD');
-          value = int.parse(valueStr).toInt();
-          return null; // All is well
-        },
+        validator: validator,
       );
+
+  String validator(String valueStr) {
+    if (valueStr.isEmpty || (int.parse(valueStr).toInt() < 0)) {
+      print('$label.validator: "$valueStr" is not correct must be >= 1');
+      return '$label must be >= 1';
+    }
+
+    // The param valueStr is good, set value.
+    print('$label.validator: "$valueStr" is GOOD');
+    value = int.parse(valueStr).toInt();
+    return null; // All is well
+  }
 
   void addListener() {
     controller.addListener(() {
       // This will be invoked with every change i.e. every keystroke.
-      print('SampleCountField.controller.text=${controller.text}');
+      print('$label.controller.text=${controller.text}');
     });
   }
+}
+
+class SampleCountField extends BaseIntField {
+  SampleCountField(String label) : super(label);
 }
 
 class BenchmarkFormState extends State<BenchmarkForm> {

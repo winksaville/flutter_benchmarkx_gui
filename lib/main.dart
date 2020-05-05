@@ -59,7 +59,8 @@ void runBm(BenchmarkParams params) {
 }
 
 class BaseIntField {
-  BaseIntField(this.label);
+  BaseIntField(this.label, int initialValue) :
+    controller = TextEditingController(text: initialValue.toString());
 
   void dispose() {
     controller.dispose();
@@ -67,7 +68,7 @@ class BaseIntField {
 
   int value;
   final String label;
-  final TextEditingController controller = TextEditingController();
+  final TextEditingController controller;
   TextFormField get textFormField => TextFormField(
         controller: controller,
         decoration: InputDecoration(
@@ -97,11 +98,11 @@ class BaseIntField {
 }
 
 class SampleCountField extends BaseIntField {
-  SampleCountField(String label) : super(label);
+  SampleCountField(String label, int initialValue) : super(label, initialValue);
 }
 
 class MinExerciseInMillisField extends BaseIntField {
-  MinExerciseInMillisField(String label) : super(label);
+  MinExerciseInMillisField(String label, int initialValue) : super(label, initialValue);
 }
 
 class BenchmarkFormState extends State<BenchmarkForm> {
@@ -125,9 +126,9 @@ class BenchmarkFormState extends State<BenchmarkForm> {
   }
 
   // BenchmarkForm fields
-  SampleCountField sampleCountField = SampleCountField('Sample count');
+  SampleCountField sampleCountField = SampleCountField('Sample count', 100);
   MinExerciseInMillisField minExerciseInMillisField =
-      MinExerciseInMillisField('minExercise ms');
+      MinExerciseInMillisField('minExercise ms', 5000);
 
   Future<void> _runBm() async {
     print(

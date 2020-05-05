@@ -56,23 +56,73 @@ void runBm(BenchmarkParams params) {
   params.sendPort.send(samples);
 }
 
+class SampleCountField {
+  SampleCountField(this.label);
+
+  void dispose() {
+    controller.dispose();
+  }
+
+  int value;
+  final String label;
+  final TextEditingController controller = TextEditingController();
+  TextFormField get textFormField => TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+        ),
+        validator: (String valueStr) {
+          if (valueStr.isEmpty || (int.parse(valueStr).toInt() < 0)) {
+            print('$label.validator: "$valueStr" is not correct must be >= 1');
+            return '$label must be >= 1';
+          }
+
+          // The param valueStr is good, set value.
+          print('$label.validator: "$valueStr" is GOOD');
+          value = int.parse(valueStr).toInt();
+          return null; // All is well
+        },
+      );
+
+  void addListener() {
+    controller.addListener(() {
+      // This will be invoked with every change i.e. every keystroke.
+      print('SampleCountField.controller.text=${controller.text}');
+    });
+  }
+}
+
 class BenchmarkFormState extends State<BenchmarkForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<double> _samples = <double>[];
 
+  @override
+  void initState() {
+    super.initState();
+
+    sampleCountField.addListener();
+  }
+
+  @override
+  void dispose() {
+    print('BenchmarkFormState.dispose: sampleCountController.dispose()');
+    sampleCountField.dispose();
+    super.dispose();
+  }
+
   // BenchmarkForm fields
-  static const String _sampleCountLabel = 'Sample count';
-  int _sampleCount;
+  SampleCountField sampleCountField = SampleCountField('Sample count');
 
   Future<void> _runBm() async {
-    print('_runBm:+ $_sampleCount');
+    print('_runBm:+ ${sampleCountField.value}');
     // Run the benchmark
     final ReceivePort receivePort = ReceivePort();
 
     final Isolate isolate = await Isolate.spawn(
         runBm,
         BenchmarkParams(
-            sendPort: receivePort.sendPort, sampleCount: _sampleCount));
+            sendPort: receivePort.sendPort,
+            sampleCount: sampleCountField.value));
 
     List<double> samples;
     await receivePort.first.then((dynamic value) {
@@ -84,7 +134,7 @@ class BenchmarkFormState extends State<BenchmarkForm> {
 
     // Use setState to update state variables so build gets called.
     setState(() {
-      print('_runBm.setState:+ $_sampleCount');
+      print('BenchmarkFormState._runBm.setState:+ ${sampleCountField.value}');
       _samples = samples;
     });
   }
@@ -130,31 +180,14 @@ class BenchmarkFormState extends State<BenchmarkForm> {
                   children: <Widget>[
                     Container(
                       decoration: visualizeBorder(),
-                      child: TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: _sampleCountLabel,
-                        ),
-                        onChanged: (String value) {
-                          print('$_sampleCountLabel.onChanged: "$value"');
-                          if (value.isNotEmpty) {
-                            _sampleCount = int.parse(value);
-                          }
-                        },
-                        validator: (String value) {
-                          if (value.isEmpty || (int.parse(value).toInt() < 0)) {
-                            print(
-                                '$_sampleCountLabel.validator: "$value" is not correct must be >= 1');
-                            return '$_sampleCountLabel must be >= 1';
-                          }
-                          print('$_sampleCountLabel.validator: "$value" is GOOD');
-                          _sampleCount = int.parse(value).toInt();
-                          return null; // All is well
-                        },
-                      ),
+                      child: sampleCountField.textFormField,
                     ),
                     RaisedButton(onPressed: () {
                       if (_formKey.currentState.validate()) {
-                        print('Call benchmark');
+                        print('BenchmarkFormState.RaisedButton.onPressed: '
+                            'sampleCountController.text=${sampleCountField.value}');
+                        print('BenchmarkFormState.RaisedButton.onPressed: '
+                            'call _runBm');
                         _runBm();
                       }
                     }),

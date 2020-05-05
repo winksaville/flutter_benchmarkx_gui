@@ -143,7 +143,9 @@ class BenchmarkFormState extends State<BenchmarkForm> {
   Widget build(BuildContext context) {
     // Change to Colors.black to see the border
     BoxDecoration visualizeBorder() {
-      const Color c = Colors.black; //.white; // black;
+      const bool visualize = false;
+      final Color c = visualize ? Colors.black : Theme.of(context).canvasColor;
+      //const Color c = Colors.black;
       return BoxDecoration(
         border: Border.all(color: c, width: 3),
       );

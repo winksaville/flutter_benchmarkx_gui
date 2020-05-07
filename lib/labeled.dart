@@ -59,7 +59,8 @@ class LabeledDouble extends StatelessWidget {
 }
 
 class LabeledSecond extends StatelessWidget {
-  const LabeledSecond({this.label, this.value, this.decimalPlaces=1}) : super();
+  const LabeledSecond({this.label, this.value, this.decimalPlaces = 1})
+      : super();
 
   final String label;
   final double value;
@@ -72,7 +73,8 @@ class LabeledSecond extends StatelessWidget {
     if (value == null) {
       valueStr = '';
     } else {
-      valueStr = bmrk.SecondTimeUnits.asString(value, decimalPlaces: decimalPlaces);
+      valueStr =
+          bmrk.SecondTimeUnits.asString(value, decimalPlaces: decimalPlaces);
     }
 
     return Row(

@@ -66,7 +66,8 @@ class SampleCountField extends BaseIntField {
 }
 
 class MinExerciseInMillisField extends BaseIntField {
-  MinExerciseInMillisField(String label, int initialValue) : super(label, initialValue);
+  MinExerciseInMillisField(String label, int initialValue)
+      : super(label, initialValue);
 }
 
 Widget statsRow(Stats<double> stats) {
@@ -75,26 +76,21 @@ Widget statsRow(Stats<double> stats) {
       Container(
         margin: const EdgeInsets.only(left: 10, right: 10),
         child: LabeledSecond(
-            label: 'average',
-            value: stats?.average?.toDouble(),),
+          label: 'average',
+          value: stats?.average?.toDouble(),
+        ),
       ),
       Container(
         margin: const EdgeInsets.only(left: 10, right: 10),
-        child: LabeledSecond(
-            label: 'min',
-            value: stats?.min?.toDouble()),
+        child: LabeledSecond(label: 'min', value: stats?.min?.toDouble()),
       ),
       Container(
         margin: const EdgeInsets.only(left: 10, right: 10),
-        child: LabeledSecond(
-            label: 'max',
-            value: stats?.max?.toDouble()),
+        child: LabeledSecond(label: 'max', value: stats?.max?.toDouble()),
       ),
       Container(
         margin: const EdgeInsets.only(left: 10, right: 10),
-        child: LabeledSecond(
-            label: 'median',
-            value: stats?.median?.toDouble()),
+        child: LabeledSecond(label: 'median', value: stats?.median?.toDouble()),
       ),
       Container(
         margin: const EdgeInsets.only(left: 10, right: 10),
@@ -229,7 +225,8 @@ class BenchmarkFormState extends State<BenchmarkForm> {
                             child: RaisedButton(
                               onPressed: () {
                                 if (_formKey.currentState.validate()) {
-                                  print('BenchmarkFormState.RaisedButton.onPressed: '
+                                  print(
+                                      'BenchmarkFormState.RaisedButton.onPressed: '
                                       'sampleCountController.text=${sampleCountField.value} '
                                       'minExerciseInMillis.text=${minExerciseInMillisField.value}');
                                   runBm();

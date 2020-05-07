@@ -5,6 +5,7 @@ import 'package:benchmark_framework_x/benchmark_framework_x.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:stats/stats.dart' show Stats;
+import 'fields.dart';
 import 'labeled.dart';
 import 'simple_line_chart.dart';
 
@@ -58,45 +59,6 @@ void runBenchmark(BenchmarkParams params) {
       sampleCount: params.sampleCount,
       minExerciseInMillis: params.minExerciseInMillis);
   params.sendPort.send(samples);
-}
-
-class BaseIntField {
-  BaseIntField(this.label, int initialValue) :
-      controller = TextEditingController(text: initialValue.toString());
-
-  void dispose() {
-    controller.dispose();
-  }
-
-  int value;
-  final String label;
-  final TextEditingController controller;
-  TextFormField get textFormField => TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-        ),
-        validator: validator,
-      );
-
-  String validator(String valueStr) {
-    if (valueStr.isEmpty || (int.parse(valueStr).toInt() < 0)) {
-      print('$label.validator: "$valueStr" is not correct must be >= 1');
-      return '$label must be >= 1';
-    }
-
-    // The param valueStr is good, set value.
-    print('$label.validator: "$valueStr" is GOOD');
-    value = int.parse(valueStr).toInt();
-    return null; // All is well
-  }
-
-  void addListener() {
-    controller.addListener(() {
-      // This will be invoked with every change i.e. every keystroke.
-      print('$label.controller.text=${controller.text}');
-    });
-  }
 }
 
 class SampleCountField extends BaseIntField {

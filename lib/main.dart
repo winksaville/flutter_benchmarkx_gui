@@ -72,6 +72,7 @@ class MinExerciseInMillisField extends BaseIntField {
 
 Widget statsRow(Stats<double> stats) {
   return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: <Widget>[
       Container(
         margin: const EdgeInsets.only(left: 10, right: 10),

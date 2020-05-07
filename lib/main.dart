@@ -70,14 +70,21 @@ class MinExerciseInMillisField extends BaseIntField {
       : super(label, initialValue);
 }
 
-Widget statsRow(Stats<double> stats) {
+Widget statsRow(Stats<double> stats, int selectedIndex, double selectedValue) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: <Widget>[
       Container(
         margin: const EdgeInsets.only(left: 10, right: 10),
         child: LabeledSecond(
-          label: 'average',
+          label: selectedIndex == null ? 'v[?]' : 'v[$selectedIndex]',
+          value: selectedValue,
+        ),
+      ),
+      Container(
+        margin: const EdgeInsets.only(left: 10, right: 10),
+        child: LabeledSecond(
+          label: 'avg',
           value: stats?.average?.toDouble(),
         ),
       ),
@@ -96,8 +103,7 @@ Widget statsRow(Stats<double> stats) {
       Container(
         margin: const EdgeInsets.only(left: 10, right: 10),
         child: LabeledSecond(
-            label: 'standard deviation',
-            value: stats?.standardDeviation?.toDouble()),
+            label: 'SD', value: stats?.standardDeviation?.toDouble()),
       ),
     ],
   );
@@ -107,6 +113,8 @@ class BenchmarkFormState extends State<BenchmarkForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<double> _samples = <double>[];
   Stats<double> _stats;
+  int _selectedIndex;
+  double _selectedValue;
 
   @override
   void initState() {
@@ -134,6 +142,8 @@ class BenchmarkFormState extends State<BenchmarkForm> {
         'runBm:+ ${sampleCountField.value} ${minExerciseInMillisField.value}');
     // Run the benchmark
     final ReceivePort receivePort = ReceivePort();
+    _selectedIndex = null;
+    _selectedValue = null;
 
     final Isolate isolate = await Isolate.spawn(
         runBenchmark,
@@ -155,14 +165,29 @@ class BenchmarkFormState extends State<BenchmarkForm> {
       print(
           'runBm.setState:+ ${sampleCountField.value} ${minExerciseInMillisField.value}');
       _samples = samples;
-      // TODO(wink): Do on anther thread
+      // TODO(wink): Do this in another isolate
       _stats = Stats<double>.fromData(_samples);
+    });
+  }
+
+  void onSelectCallback(int index, double value) {
+    // TODO(wink): I think we need to make the selected item output
+    // a separate StatefulWidget so we don't update the entire graph
+    // twice, once when the graph updates itself when the selection is
+    // made. And then agian when we run this code. That is obviously
+    // unnecessary and slow but it "clears" the selection highlighting!
+    print('_onSelectCallback: model index=$index selectedDatum=$value');
+    setState(() {
+      print(
+          'setState._onSelectCallback: model index=$index selectedDatum=$value');
+      _selectedIndex = index;
+      _selectedValue = value;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Change to Colors.black to see the border
+    // Change visualize to true to see the border
     BoxDecoration visualizeBorder() {
       const bool visualize = false;
       final Color c = visualize ? Colors.black : Theme.of(context).canvasColor;
@@ -192,7 +217,8 @@ class BenchmarkFormState extends State<BenchmarkForm> {
               child: Container(
                 margin: const EdgeInsets.all(10),
                 decoration: visualizeBorder(),
-                child: SimpleLineChart('Data', _samples),
+                child: SimpleLineChart('Data', _samples,
+                    onSelectCallback: onSelectCallback),
               ),
             ),
             Container(
@@ -204,7 +230,7 @@ class BenchmarkFormState extends State<BenchmarkForm> {
                     Container(
                       margin: const EdgeInsets.all(0),
                       //decoration: visualizeBorder(),
-                      child: statsRow(_stats),
+                      child: statsRow(_stats, _selectedIndex, _selectedValue),
                     ),
                     Row(
                       children: <Widget>[

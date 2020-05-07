@@ -4,38 +4,62 @@ import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
 class SimpleLineChart extends StatelessWidget {
-  SimpleLineChart(String title, List<double> data, {this.animate})
+  SimpleLineChart(String title, List<double> data,
+      {this.animate, this.onSelectCallback})
       : seriesList = createBenchmarkChartData(title, data);
 
   final List<charts.Series<double, int>> seriesList;
   final bool animate;
+  final void Function(int index, double value) onSelectCallback;
+
+  void _onSelectionChanged(charts.SelectionModel<num> model) {
+    if (onSelectCallback != null) {
+      final int index = model.selectedDatum.first.index;
+      final double value = model.selectedDatum.first.datum as double;
+      onSelectCallback(index, value);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final charts.BasicNumericTickFormatterSpec customTickFormatter =
-        charts.BasicNumericTickFormatterSpec(
-            (num value) => SecondTimeUnits.asString(value.toDouble(), decimalPlaces: 0));
+        charts.BasicNumericTickFormatterSpec((num value) =>
+            SecondTimeUnits.asString(value.toDouble(), decimalPlaces: 0));
 
     return charts.LineChart(
       seriesList,
       animate: animate,
+      selectionModels: [
+        charts.SelectionModelConfig<int>(
+          type: charts.SelectionModelType.info,
+          changedListener: _onSelectionChanged,
+        ),
+      ],
+      behaviors: [],
       primaryMeasureAxis: charts.NumericAxisSpec(
         tickFormatterSpec: customTickFormatter,
 
-        tickProviderSpec: const charts
-            .StaticNumericTickProviderSpec(<charts.TickSpec<double>>[
-          charts.TickSpec<double>(2.0e-10),
-          charts.TickSpec<double>(2.5e-10),
-          charts.TickSpec<double>(3.0e-10),
-          charts.TickSpec<double>(3.5e-10),
-          charts.TickSpec<double>(4.0e-10),
-        ]),
+        // This is nice when we guess range correctly, but we could still
+        // use "minor ticks", i.e. ticks without labels.
+        //tickProviderSpec: const charts
+        //    .StaticNumericTickProviderSpec(<charts.TickSpec<double>>[
+        //  charts.TickSpec<double>(2.0e-10),
+        //  charts.TickSpec<double>(2.5e-10),
+        //  charts.TickSpec<double>(3.0e-10),
+        //  charts.TickSpec<double>(3.5e-10),
+        //  charts.TickSpec<double>(4.0e-10),
+        //]),
 
-        //tickProviderSpec: const charts.BasicNumericTickProviderSpec(
-        //  dataIsInWholeNumbers: false,
-        //  desiredTickCount: 3,
-        //  zeroBound: false,
-        //),
+        // TODO(wink): The above static doesn't work because we can't
+        // know what the range is going to be. At the moment it doesn't
+        // look like there is enough control over the adding ticks in
+        // the package as it is currently. We'll probably have to do our
+        // own so we can get more detail and implent "minor ticks".
+        tickProviderSpec: const charts.BasicNumericTickProviderSpec(
+          dataIsInWholeNumbers: false,
+          desiredTickCount: 5,
+          zeroBound: false,
+        ),
       ),
     );
   }

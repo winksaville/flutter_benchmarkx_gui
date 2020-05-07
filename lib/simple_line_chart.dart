@@ -1,9 +1,11 @@
+import 'package:benchmark_framework_x/benchmark_framework_x.dart'
+    show SecondTimeUnits;
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
 class SimpleLineChart extends StatelessWidget {
-  SimpleLineChart(String title, List<double> data, {this.animate}) :
-    seriesList = createBenchmarkChartData(title, data);
+  SimpleLineChart(String title, List<double> data, {this.animate})
+      : seriesList = createBenchmarkChartData(title, data);
 
   final List<charts.Series<double, int>> seriesList;
   final bool animate;
@@ -11,7 +13,8 @@ class SimpleLineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final charts.BasicNumericTickFormatterSpec customTickFormatter =
-        charts.BasicNumericTickFormatterSpec((num value) => value.toString());
+        charts.BasicNumericTickFormatterSpec(
+            (num value) => SecondTimeUnits.asString(value.toDouble(), decimalPlaces: 0));
 
     return charts.LineChart(
       seriesList,
@@ -53,4 +56,3 @@ class SimpleLineChart extends StatelessWidget {
     ];
   }
 }
-

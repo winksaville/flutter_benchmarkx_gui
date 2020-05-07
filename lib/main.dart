@@ -4,6 +4,8 @@ import 'dart:isolate';
 import 'package:benchmark_framework_x/benchmark_framework_x.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:stats/stats.dart' show Stats;
+import 'labeled.dart';
 import 'simple_line_chart.dart';
 
 // Main entry point of the application
@@ -60,7 +62,7 @@ void runBenchmark(BenchmarkParams params) {
 
 class BaseIntField {
   BaseIntField(this.label, int initialValue) :
-    controller = TextEditingController(text: initialValue.toString());
+      controller = TextEditingController(text: initialValue.toString());
 
   void dispose() {
     controller.dispose();
@@ -105,9 +107,47 @@ class MinExerciseInMillisField extends BaseIntField {
   MinExerciseInMillisField(String label, int initialValue) : super(label, initialValue);
 }
 
+Widget statsRow(Stats<double> stats) {
+  return Row(
+    children: <Widget>[
+      Container(
+        margin: const EdgeInsets.only(left: 10, right: 10),
+        child: LabeledSecond(
+            label: 'average',
+            value: stats?.average?.toDouble(),),
+      ),
+      Container(
+        margin: const EdgeInsets.only(left: 10, right: 10),
+        child: LabeledSecond(
+            label: 'min',
+            value: stats?.min?.toDouble()),
+      ),
+      Container(
+        margin: const EdgeInsets.only(left: 10, right: 10),
+        child: LabeledSecond(
+            label: 'max',
+            value: stats?.max?.toDouble()),
+      ),
+      Container(
+        margin: const EdgeInsets.only(left: 10, right: 10),
+        child: LabeledSecond(
+            label: 'median',
+            value: stats?.median?.toDouble()),
+      ),
+      Container(
+        margin: const EdgeInsets.only(left: 10, right: 10),
+        child: LabeledSecond(
+            label: 'standard deviation',
+            value: stats?.standardDeviation?.toDouble()),
+      ),
+    ],
+  );
+}
+
 class BenchmarkFormState extends State<BenchmarkForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<double> _samples = <double>[];
+  Stats<double> _stats;
 
   @override
   void initState() {
@@ -156,6 +196,8 @@ class BenchmarkFormState extends State<BenchmarkForm> {
       print(
           'runBm.setState:+ ${sampleCountField.value} ${minExerciseInMillisField.value}');
       _samples = samples;
+      // TODO(wink): Do on anther thread
+      _stats = Stats<double>.fromData(_samples);
     });
   }
 
@@ -200,6 +242,11 @@ class BenchmarkFormState extends State<BenchmarkForm> {
                 key: _formKey,
                 child: Column(
                   children: <Widget>[
+                    Container(
+                      margin: const EdgeInsets.all(0),
+                      //decoration: visualizeBorder(),
+                      child: statsRow(_stats),
+                    ),
                     Row(
                       children: <Widget>[
                         Expanded(

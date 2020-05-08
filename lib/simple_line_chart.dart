@@ -29,13 +29,12 @@ class SimpleLineChart extends StatelessWidget {
     return charts.LineChart(
       seriesList,
       animate: animate,
-      selectionModels: [
+      selectionModels: <charts.SelectionModelConfig<int>>[
         charts.SelectionModelConfig<int>(
           type: charts.SelectionModelType.info,
           changedListener: _onSelectionChanged,
         ),
       ],
-      behaviors: [],
       primaryMeasureAxis: charts.NumericAxisSpec(
         tickFormatterSpec: customTickFormatter,
 

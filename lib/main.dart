@@ -70,17 +70,19 @@ class MinExerciseInMillisField extends BaseIntField {
       : super(label, initialValue);
 }
 
-Widget statsRow(Stats<double> stats, int selectedIndex, double selectedValue) {
+Widget statsRow(Stats<double> stats, SelectedValue selectedValue) {
+  //, int selectedIndex, double selectedValue) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: <Widget>[
-      Container(
-        margin: const EdgeInsets.only(left: 10, right: 10),
-        child: LabeledSecond(
-          label: selectedIndex == null ? 'v[?]' : 'v[$selectedIndex]',
-          value: selectedValue,
-        ),
-      ),
+      selectedValue,
+      //Container(
+      //  margin: const EdgeInsets.only(left: 10, right: 10),
+      //  child: LabeledSecond(
+      //    label: selectedIndex == null ? 'v[?]' : 'v[$selectedIndex]',
+      //    value: selectedValue,
+      //  ),
+      //),
       Container(
         margin: const EdgeInsets.only(left: 10, right: 10),
         child: LabeledSecond(
@@ -113,8 +115,7 @@ class BenchmarkFormState extends State<BenchmarkForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<double> _samples = <double>[];
   Stats<double> _stats;
-  int _selectedIndex;
-  double _selectedValue;
+  final SelectedValue _selectedValue = SelectedValue();
 
   @override
   void initState() {
@@ -142,8 +143,6 @@ class BenchmarkFormState extends State<BenchmarkForm> {
         'runBm:+ ${sampleCountField.value} ${minExerciseInMillisField.value}');
     // Run the benchmark
     final ReceivePort receivePort = ReceivePort();
-    _selectedIndex = null;
-    _selectedValue = null;
 
     final Isolate isolate = await Isolate.spawn(
         runBenchmark,
@@ -171,18 +170,9 @@ class BenchmarkFormState extends State<BenchmarkForm> {
   }
 
   void onSelectCallback(int index, double value) {
-    // TODO(wink): I think we need to make the selected item output
-    // a separate StatefulWidget so we don't update the entire graph
-    // twice, once when the graph updates itself when the selection is
-    // made. And then agian when we run this code. That is obviously
-    // unnecessary and slow but it "clears" the selection highlighting!
-    print('_onSelectCallback: model index=$index selectedDatum=$value');
-    setState(() {
-      print(
-          'setState._onSelectCallback: model index=$index selectedDatum=$value');
-      _selectedIndex = index;
-      _selectedValue = value;
-    });
+    print(
+        'BenchmarkFormState.onSelectCallback: model index=$index selectedDatum=$value');
+    _selectedValue.update(index, value);
   }
 
   @override
@@ -230,7 +220,8 @@ class BenchmarkFormState extends State<BenchmarkForm> {
                     Container(
                       margin: const EdgeInsets.all(0),
                       //decoration: visualizeBorder(),
-                      child: statsRow(_stats, _selectedIndex, _selectedValue),
+                      child: statsRow(_stats,
+                          _selectedValue), //, _selectedIndex, _selectedValue),
                     ),
                     Row(
                       children: <Widget>[
@@ -273,5 +264,107 @@ class BenchmarkFormState extends State<BenchmarkForm> {
         ),
       ),
     );
+  }
+}
+
+class SelectedValue extends StatefulWidget {
+  SelectedValue({Key key})
+      : _state = SelectedValueState(),
+        super(key: key) {
+    print('SelectedValue.ctor:+-');
+  }
+
+  final SelectedValueState _state;
+
+  void update(int index, double value) => _state.update(index, value);
+
+  @override
+  State<StatefulWidget> createState() => SelectedValueState();
+}
+
+class SelectedValueState extends State<SelectedValue> {
+  SelectedValueState() {
+    print('SelectedValueState.ctor:+- mounted=$mounted');
+  }
+
+  int _index;
+  double _value;
+
+  void update(int index, double value) {
+    print(
+        'SelectedValueState.update: model index=$index selectedDatum=$value mounted=$mounted');
+    _index = index;
+    _value = value;
+    //if (mounted) {
+      print(
+          'SelectedValueState.update: model index=$index selectedDatum=$value WE ARE mounted=$mounted');
+      setState(() {
+        print('setState.update: model index=$index selectedDatum=$value');
+        _index = index;
+        _value = value;
+      });
+    //}
+  }
+
+  @override
+  void initState() {
+    print('SelectedValueState.initState:- calling super mounted=$mounted');
+    super.initState();
+    print('SelectedValueState.initState:- retfrom super mounted=$mounted');
+  }
+
+  @override
+  void didUpdateWidget(SelectedValue oldWidget) {
+    print('SelectedValueState.didUpdateWidget:+ calling super mounted=$mounted');
+    super.didUpdateWidget(oldWidget);
+    print('SelectedValueState.didUpdateWidget:- retfrom super mounted=$mounted');
+  }
+
+  @override
+  void reassemble() {
+    print('SelectedValueState.reassemble:+ calling super mounted=$mounted');
+    super.reassemble();
+    print('SelectedValueState.reassemble:- retfrom super mounted=$mounted');
+  }
+
+  @override
+  //Future<void> setState(void Function() fn) async {
+  void setState(void Function() fn) {
+    print('SelectedValueState.setState:+ calling super mounted=$mounted');
+    super.setState(fn);
+    print('SelectedValueState.setState:- retfrom super mounted=$mounted');
+  }
+
+  @override
+  void deactivate() {
+    print('SelectedValueState.deactivate:+ calling super mounted=$mounted');
+    super.deactivate();
+    print('SelectedValueState.deactivate:- retfrom super mounted=$mounted');
+  }
+
+  @override
+  void dispose() {
+    print('SelectedValueState.displose:+ calling super mounted=$mounted');
+    super.dispose();
+    print('SelectedValueState.displose:- retfrom super mounted=$mounted');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    print('SelectedValueState.build:+- mounted=$mounted');
+    return Container(
+      margin: const EdgeInsets.only(left: 10, right: 10),
+      child: LabeledSecond(
+        label: _index == null ? 'v[?]' : 'v[$_index]',
+        value: _value,
+      ),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    print('SelectedValueState.didChangeDependencies:+ calling super mounted=$mounted');
+    super.didChangeDependencies();
+    print('SelectedValueState.didChangeDependencies:- retfrom super mounted=$mounted');
   }
 }

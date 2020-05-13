@@ -77,17 +77,20 @@ class LabeledSecond extends StatelessWidget {
           bmrk.SecondTimeUnits.asString(value, decimalPlaces: decimalPlaces);
     }
 
-    return Row(
-      children: <Widget>[
-        Text(
-          '$label: ',
-          textAlign: TextAlign.left,
-        ),
-        Text(
-          valueStr,
-          textAlign: TextAlign.right,
-        ),
-      ],
+    return SizedBox(
+      width: 150,
+      child: Row(
+        children: <Widget>[
+          Text(
+            '$label: ',
+            textAlign: TextAlign.left,
+          ),
+          Text(
+            valueStr,
+            textAlign: TextAlign.right,
+          ),
+        ],
+      ),
     );
   }
 }

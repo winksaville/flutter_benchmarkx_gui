@@ -71,40 +71,68 @@ class MinExerciseInMillisField extends BaseIntField {
 }
 
 Widget statsRow(Stats<double> stats, int selectedIndex, double selectedValue) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  const double width = 150;
+  const double height = 75;
+
+  return Wrap(
+    alignment: WrapAlignment.spaceEvenly,
+    direction: Axis.horizontal,
     children: <Widget>[
-      Container(
-        margin: const EdgeInsets.only(left: 10, right: 10),
-        child: LabeledSecond(
-          label: selectedIndex == null ? 'v[?]' : 'v[$selectedIndex]',
-          value: selectedValue,
+      SizedBox(
+        width: width,
+        height: height,
+        child: Container(
+          margin: const EdgeInsets.only(left: 10, right: 10),
+          child: LabeledSecond(
+            label: selectedIndex == null ? 'v[?]' : 'v[$selectedIndex]',
+            value: selectedValue,
+          ),
         ),
       ),
-      Container(
-        margin: const EdgeInsets.only(left: 10, right: 10),
-        child: LabeledSecond(
-          label: 'avg',
-          value: stats?.average?.toDouble(),
+      SizedBox(
+        width: width,
+        height: height,
+        child: Container(
+          margin: const EdgeInsets.only(left: 10, right: 10),
+          child: LabeledSecond(
+            label: 'avg',
+            value: stats?.average?.toDouble(),
+          ),
         ),
       ),
-      Container(
-        margin: const EdgeInsets.only(left: 10, right: 10),
-        child: LabeledSecond(label: 'min', value: stats?.min?.toDouble()),
+      SizedBox(
+        width: width,
+        height: height,
+        child: Container(
+          margin: const EdgeInsets.only(left: 10, right: 10),
+          child: LabeledSecond(label: 'min', value: stats?.min?.toDouble()),
+        ),
       ),
-      Container(
+      SizedBox(
+        width: width,
+        height: height,
+        child: Container(
         margin: const EdgeInsets.only(left: 10, right: 10),
         child: LabeledSecond(label: 'max', value: stats?.max?.toDouble()),
       ),
-      Container(
+        ),
+      SizedBox(
+        width: width,
+        height: height,
+        child: Container(
         margin: const EdgeInsets.only(left: 10, right: 10),
         child: LabeledSecond(label: 'median', value: stats?.median?.toDouble()),
       ),
-      Container(
+        ),
+      SizedBox(
+        width: width,
+        height: height,
+        child: Container(
         margin: const EdgeInsets.only(left: 10, right: 10),
         child: LabeledSecond(
             label: 'SD', value: stats?.standardDeviation?.toDouble()),
       ),
+        ),
     ],
   );
 }
@@ -197,6 +225,9 @@ class BenchmarkFormState extends State<BenchmarkForm> {
       );
     }
 
+    const double width = 150;
+    const double height = 75;
+
     // Return this rebuilt widget
     return Scaffold(
       appBar: AppBar(
@@ -232,34 +263,46 @@ class BenchmarkFormState extends State<BenchmarkForm> {
                       //decoration: visualizeBorder(),
                       child: statsRow(_stats, _selectedIndex, _selectedValue),
                     ),
-                    Row(
+                    Wrap(
+                      alignment: WrapAlignment.spaceEvenly,
+                      direction: Axis.horizontal,
                       children: <Widget>[
-                        Expanded(
+                        SizedBox(
+                          width: width,
+                          height: height,
                           child: Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: sampleCountField.textFormField,
                           ),
                         ),
-                        Expanded(
+                        SizedBox(
+                          width: width,
+                          height: height,
                           child: Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: minExerciseInMillisField.textFormField,
                           ),
                         ),
-                        Container(
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: RaisedButton(
-                              onPressed: () {
-                                if (_formKey.currentState.validate()) {
-                                  print(
-                                      'BenchmarkFormState.RaisedButton.onPressed: '
-                                      'sampleCountController.text=${sampleCountField.value} '
-                                      'minExerciseInMillis.text=${minExerciseInMillisField.value}');
-                                  runBm();
-                                }
-                              },
-                              child: const Text('Run'),
+                        SizedBox(
+                          width: width,
+                          height: height,
+                          child: Container(
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: RaisedButton(
+                                  onPressed: () {
+                                    if (_formKey.currentState.validate()) {
+                                      print(
+                                          'BenchmarkFormState.RaisedButton.onPressed: '
+                                          'sampleCountController.text=${sampleCountField.value} '
+                                          'minExerciseInMillis.text=${minExerciseInMillisField.value}');
+                                      runBm();
+                                    }
+                                  },
+                                  child: const Text('Run'),
+                                ),
+                              ),
                             ),
                           ),
                         ),

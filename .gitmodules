@@ -1,0 +1,3 @@
+[submodule "submodules/charts_cf"]
+	path = submodules/charts_cf
+	url = git@github.com:winksaville/charts_cf

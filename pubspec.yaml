@@ -29,7 +29,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.3
 
-  charts_flutter_cf: ^0.10.2
+  #charts_flutter_cf: ^0.10.2
+  charts_flutter_cf:
+    path: submodules/charts_cf/charts_flutter_cf
 
   flutter:
     sdk: flutter

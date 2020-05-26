@@ -48,16 +48,16 @@ packages:
   charts_common_cf:
     dependency: transitive
     description:
-      name: charts_common_cf
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "submodules/charts_cf/charts_common_cf"
+      relative: true
+    source: path
     version: "0.10.2"
   charts_flutter_cf:
     dependency: "direct main"
     description:
-      name: charts_flutter_cf
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "submodules/charts_cf/charts_flutter_cf"
+      relative: true
+    source: path
     version: "0.10.2"
   clock:
     dependency: transitive

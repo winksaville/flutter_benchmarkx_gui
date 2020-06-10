@@ -51,14 +51,14 @@ packages:
       path: "submodules/charts_cf/charts_common_cf"
       relative: true
     source: path
-    version: "0.10.2"
+    version: "0.10.3+cf"
   charts_flutter_cf:
     dependency: "direct main"
     description:
       path: "submodules/charts_cf/charts_flutter_cf"
       relative: true
     source: path
-    version: "0.10.2"
+    version: "0.10.3+cf"
   clock:
     dependency: transitive
     description:

@@ -1,6 +1,6 @@
 [submodule "submodules/charts_cf"]
 	path = submodules/charts_cf
 	url = git@github.com:winksaville/charts_cf
-[submodule "charts_cf"]
-	path = charts_cf
-	url = git@github.com:winksaville/charts_cf
+[submodule "submodules/charts"]
+	path = submodules/charts
+	url = https://github.com/winksaville/charts
